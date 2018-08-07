@@ -1,0 +1,47 @@
+Database Connection:
+Steps:
+
+1. At site: 
+
+	1.1. Turn off the firewall.
+	1.2. Get the IPv4 address (XXX.XX.XX.XXX). Note it down.
+
+2. At server: Ping the site from RUN. If you get a successful reply, then everything is perfect.
+
+3. At site:
+
+	3.1. Go to C:\oraclexe\app\oracle\product\10.2.0\server\NETWORK\ADMIN\
+	3.2. Find listener.ora file.
+	3.3. Open listener.ora using NOTEPAD++ and do the following changes.
+	3.4. Add the following commands to provide additional SID_LIST under the SID_LIST_LISTENER section (see slide - 6):
+
+		(SID_DESC =
+      			(SID_NAME = XE
+      			(ORACLE_HOME = C:\oraclexe\app\oracle\product\10.2.0\server)
+    		)
+
+	3.5. Add the following commands to provide additional DESCRIPTION_LIST under the LISTENER section (see slide - 6):
+
+		(ADDRESS = (PROTOCOL = TCP)(HOST = XXX.XX.XX.XXX)(PORT = 1521))
+
+	3.6. Save the changes.
+	3.7. Run CMD with the administrative mode.
+	3.8. In CMD, run the command lsnrctl stop. If you get a successful message then ok (see slide - 7).
+	3.9. Again in CMD, run the command lsnrctl start. If you get a successful message then ok (see slide - 7).
+
+4. At server:
+
+	4.1. Run your sqlplus and log in. Execute the following codes (also provided as conn.sql) to generate a database link with the site:
+		
+		   drop database link site_link;
+
+			create database link site_link
+ 			connect to username identified by "password"
+			using '(DESCRIPTION =
+       				   (ADDRESS_LIST = (ADDRESS = (PROTOCOL = TCP) (HOST = XXX.XX.XX.XXX) (PORT = 1521)))
+      				   (CONNECT_DATA = (SID = XE))
+    			       )' ; 
+ 
+	4.2. Now, select/ insert/ delete any data of the site from server using @site_link. For example:
+
+			select * from student@site_link;
